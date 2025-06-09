@@ -43,7 +43,7 @@ def solve_path_lp(df, start, end, max_angle):
         return None, None
 
 # --- Streamlit 앱 ---
-st.title("📝 체크된 파일을 이용한 최적 건너기 + 지도 시각화")
+st.title("📝 교내 최적 길 찾기 + 지도 시각화")
 
 node_options = sorted(nodes_df["node"].unique())
 start = st.selectbox("해당 노드에서 출발 (start)", node_options)
