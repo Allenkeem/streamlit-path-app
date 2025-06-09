@@ -4,3 +4,4 @@ networkx
 openpyxl
 folium
 streamlit-folium
+pulp
