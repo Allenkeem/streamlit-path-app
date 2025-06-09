@@ -10,6 +10,11 @@ nodes_df = nodes_df.rename(columns={"Node No.": "node", "위도": "lat", "경도
 
 edges_df = pd.read_excel("paths.xlsx", sheet_name="Sheet2")
 
+# 타입 맞추기
+nodes_df["node"] = nodes_df["node"].astype(int)
+edges_df["from"] = edges_df["from"].astype(int)
+edges_df["to"] = edges_df["to"].astype(int)
+
 # --- Solver 방식 최단 경로 함수 ---
 def solve_path_lp(df, start, end, max_angle):
     uses = [LpVariable(f"use_{i}", cat=LpBinary) for i in range(len(df))]
@@ -45,15 +50,13 @@ def solve_path_lp(df, start, end, max_angle):
 # --- Streamlit 앱 ---
 st.title("📝 교내 최적 길 찾기 + 지도 시각화")
 
-node_options = sorted(nodes_df["node"].unique())
-# ▼ 선택 리스트 생성: Description ↔ node 매핑
+# Description ↔ node 매핑
 node_dict = dict(zip(nodes_df["Description"], nodes_df["node"]))
+descriptions = sorted(nodes_df["Description"].tolist())
 
-# ▼ 사용자 선택은 Description 기준
-start_desc = st.selectbox("출발 지점", list(node_dict.keys()))
-end_desc = st.selectbox("도착 지점", list(node_dict.keys()))
-
-# ▼ 실제 계산에 쓸 node 번호 추출
+# 사용자 입력
+start_desc = st.selectbox("출발 지점", descriptions)
+end_desc = st.selectbox("도착 지점", descriptions)
 start = node_dict[start_desc]
 end = node_dict[end_desc]
 max_angle = st.number_input("최대 각도 (단위: 도)", value=1000)
@@ -78,14 +81,20 @@ if st.session_state.clicked:
             from_node = row['from']
             to_node = row['to']
 
-            latlon_from = nodes_df[nodes_df['node'] == from_node][['lat', 'lon']].values[0]
-            latlon_to = nodes_df[nodes_df['node'] == to_node][['lat', 'lon']].values[0]
+            from_match = nodes_df[nodes_df['node'] == from_node]
+            to_match = nodes_df[nodes_df['node'] == to_node]
+
+            if from_match.empty or to_match.empty:
+                continue
+
+            latlon_from = from_match[['lat', 'lon']].values[0]
+            latlon_to = to_match[['lat', 'lon']].values[0]
 
             folium.PolyLine([latlon_from, latlon_to], tooltip=f"{from_node} ➔ {to_node}", color="blue", weight=5).add_to(m)
             folium.CircleMarker(latlon_from, radius=5, color='green', fill=True).add_to(m)
             folium.CircleMarker(latlon_to, radius=5, color='red', fill=True).add_to(m)
 
-        st.subheader("파일에 따른 최적 경로 결과")
+        st.subheader("📍 최적 경로 지도")
         st_folium(m, width=800, height=600)
     else:
         st.error("해당 조건에 맞는 경로가 없습니다.")
