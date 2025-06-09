@@ -46,8 +46,16 @@ def solve_path_lp(df, start, end, max_angle):
 st.title("📝 교내 최적 길 찾기 + 지도 시각화")
 
 node_options = sorted(nodes_df["node"].unique())
-start = st.selectbox("해당 노드에서 출발 (start)", node_options)
-end = st.selectbox("여기까지 도착 (end)", node_options)
+# ▼ 선택 리스트 생성: Description ↔ node 매핑
+node_dict = dict(zip(nodes_df["Description"], nodes_df["node"]))
+
+# ▼ 사용자 선택은 Description 기준
+start_desc = st.selectbox("출발 지점", list(node_dict.keys()))
+end_desc = st.selectbox("도착 지점", list(node_dict.keys()))
+
+# ▼ 실제 계산에 쓸 node 번호 추출
+start = node_dict[start_desc]
+end = node_dict[end_desc]
 max_angle = st.number_input("최대 각도 (단위: 도)", value=1000)
 
 # 상태 저장
