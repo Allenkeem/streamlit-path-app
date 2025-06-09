@@ -46,7 +46,7 @@ def solve_path_lp(df, start, end, max_angle):
 st.title("📝 체크된 파일을 이용한 최적 건너기 + 지도 시각화")
 
 node_options = sorted(nodes_df["node"].unique())
-start = st.selectbox("해당 노드에서 출복 (start)", node_options)
+start = st.selectbox("해당 노드에서 출발 (start)", node_options)
 end = st.selectbox("여기까지 도착 (end)", node_options)
 max_angle = st.number_input("최대 각도 (단위: 도)", value=1000)
 
@@ -77,7 +77,7 @@ if st.session_state.clicked:
             folium.CircleMarker(latlon_from, radius=5, color='green', fill=True).add_to(m)
             folium.CircleMarker(latlon_to, radius=5, color='red', fill=True).add_to(m)
 
-        st.subheader("파일에 까달리는 건너기 결과")
+        st.subheader("파일에 따른 최적 경로 결과")
         st_folium(m, width=800, height=600)
     else:
-        st.error("해당 조건에 맞는 건너기가 없습니다.")
+        st.error("해당 조건에 맞는 경로가 없습니다.")
